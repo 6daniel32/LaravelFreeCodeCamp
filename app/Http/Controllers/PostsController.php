@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
 
 class PostsController extends Controller {
 
@@ -27,8 +28,13 @@ class PostsController extends Controller {
         
         $data['user_id'] = auth()->user();
 
+        //image local storage
         $imagePath = request('image')->store('uploads', 'public');
+        //image resizing and saving
+        $image = Image::make(public_path("storage/{$imagePath}"))->fit(1200, 1200);
+        $image->save();
 
+        //post and image path BBDD storage
         auth()->user()->posts()->create([
             'caption' => $data['caption'],
             'image' => $imagePath
@@ -36,5 +42,13 @@ class PostsController extends Controller {
 
         return redirect('/profile/' . auth()->user()->id);
 
+    }
+    
+    //poniendo esa ruta delante de la variable, se hace que en lugar de recibir el id del post
+    //(lo que se revibiría teniendo como argumento $post solo), se reciba el objeto entero
+    //desde la base de datos (laravel hace la consulta a la BBDD automaticamente)
+    public function show(\App\Post $post){
+        //la funcion compact hace lo mismo que pasar a la vista el array de parámetros
+        return view('posts.show', compact('post'));
     }
 }

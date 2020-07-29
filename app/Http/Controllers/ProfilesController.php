@@ -11,11 +11,34 @@ class ProfilesController extends Controller {
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index($user) {
-        $user = User::findOrFail($user);
+    public function index(User $user) {
 
-        return view('profiles.index', [
-            'user' => $user
+        return view('profiles.index', compact('user'));
+    }
+
+    //como tenemos importado "App\User", aqui escribimos solo "User"
+    //en vez de "App\User" para que laravel nos busque automaticamente el user
+    //en la BBDD y lo podamos usar en la función en vez de recibir un "id" y tener
+    //que buscarlo nosotros con findOrFail()
+    public function edit(User $user) {
+
+        $this->authorize('update', $user->profile);
+        return view('profiles.edit', compact('user'));
+    }
+
+    public function update(User $user) {
+
+        $this->authorize('update', $user->profile);
+
+        $data = request()->validate([
+            'title' => 'required',
+            'description' => 'required',
+            'url' => 'url',
+            'image' => ''
         ]);
+
+        auth()->user()->profile->update($data);
+
+        return redirect("/profile/{$user->id}");
     }
 }
