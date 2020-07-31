@@ -44,15 +44,13 @@ class ProfilesController extends Controller {
             $image = Image::make(public_path("storage/{$imagePath}"))->fit(1000, 1000);
             $image->save();
 
-            auth()->user()->profile->update(array_merge(
-                $data, 
-                ['image' => $imagePath]
-            ));
-        } else {
-            auth()->user()->profile->update($data);
+            $imageArray = ['image' => $imagePath];
         }
 
-        
+        auth()->user()->profile->update(array_merge(
+            $data, 
+            $imageArray ?? []
+        ));
 
         return redirect("/profile/{$user->id}");
     }
