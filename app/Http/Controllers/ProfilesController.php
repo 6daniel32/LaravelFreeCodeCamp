@@ -13,8 +13,8 @@ class ProfilesController extends Controller {
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index(User $user) {
-
-        return view('profiles.index', compact('user'));
+        $follows = (auth()->user()) ? auth()->user()->following->contains($user->id) : false;
+        return view('profiles.index', compact('user', 'follows'));
     }
 
     //como tenemos importado "App\User", aqui escribimos solo "User"
